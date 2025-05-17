@@ -1,0 +1,213 @@
+
+/*
+ * Below is the stylesheet injected by "Holodex for YouTube" and is for elements created by the userscript.
+ * Don't worry; other elements shouldn't be affected!
+ */
+
+table, th, td {
+    border: 1px solid #000000;
+    border-collapse: collapse;
+}
+
+th {
+    background-color: #f06292;
+}
+
+td {
+    background-color: #9cc9fd;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+#song-list-btn {
+    border: none;
+    background-image: linear-gradient(to bottom right, #5da2f2, #f06292);
+}
+
+#song-list-div {
+    font-size: small;
+    white-space: pre-line;
+}
+
+#song-list-table-div {
+    max-height: 75vh;
+    margin: 0.5vh;
+    overflow: auto;
+    border-radius: 12px;
+}
+
+#autoplay-div {
+    width: 100%;
+    background-color: white;
+}
+
+#autoplay-switch-label {
+    margin-left: 5px;
+}
+
+#song-info-div {
+    width: 100%;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+}
+
+#hd-thumbnail {
+    margin: 5px;
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    transition: width 0.1s linear, height 0.1s linear;
+}
+
+#hd-thumbnail:hover {
+    width: 110px;
+    height: 110px;
+    transition: width 0.1s linear, height 0.1s linear;
+}
+
+#song-detail-div {
+    display: inline-grid;
+}
+
+#song-info-name {
+    font-size: large;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 5px;
+    margin-bottom: 0.05em;
+}
+
+#song-info-artist {
+    font-size: small;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 5px;
+    margin-bottom: 0.1em;
+}
+
+#autoplay-div {
+    position: sticky;
+    top: 0;
+}
+
+#control-div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#progress-div {
+    width: 100%;
+    display: flex;
+}
+
+#progress-bar {
+    -webkit-appearance: none;
+    width: 80%;
+    display: flex;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+#progress-bar:focus {
+    outline: none;
+}
+
+/******** Chrome, Safari, Opera and Edge Chromium styles ********/
+/* slider track */
+#progress-bar::-webkit-slider-runnable-track {
+    background-image: linear-gradient(to right, #81b7f3, #ef86aa);
+    border-radius: 0.5rem;
+    height: 0.25rem;
+}
+
+/* slider thumb */
+#progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    margin-top: -4px;  /* Centers thumb on the track */
+    background-color: #808080;
+    border-radius: 0.1rem;
+    height: 1.2rem;
+    width: 0.3rem;
+}
+
+#progress-bar:focus::-webkit-slider-thumb {
+    outline: 3px solid #808080;
+    outline-offset: 0.125rem;
+}
+
+/*********** Firefox styles ***********/
+/* slider track */
+#progress-bar::-moz-range-track {
+    background-image: linear-gradient(to right, #81b7f3, #ef86aa);
+    border-radius: 0.5rem;
+    height: 0.25rem;
+}
+
+/* slider thumb */
+#progress-bar::-moz-range-thumb {
+    background-color: #808080;
+    border: none; /*Removes extra border that FF applies*/
+    border-radius: 0.1rem;
+    height: 1rem;
+    width: 0.2rem;
+}
+
+#progress-bar:focus::-moz-range-thumb{
+    outline: 3px solid #808080;
+    outline-offset: 0.125rem;
+}
+
+.song-name-div {
+    height: 40px;
+    max-height: 40px;
+    overflow: auto;
+    align-content: center;
+}
+
+.song-artist {
+    font-size: 10px;
+    font-style: italic;
+}
+
+.hd-button {
+    border: none;
+    width: 100%;
+    height: auto;
+    padding: 5px;
+    transition-duration: 0.15s;
+}
+
+.hd-button:hover {
+    background-color: #b6b6b6;
+}
+
+.play-button {
+    border: none;
+    width: 40px;
+    height: 40px;
+    background-size: cover;
+    background-color: #7f7f7f;
+}
+
+.progress-span {
+    width: 10%;
+    display: flex;
+    justify-content: center;
+}
+
+.control-buttons {
+    border: none;
+    margin: 2px 4px;
+    width: 3.5vw;
+    background-color: darkgray;
+}
