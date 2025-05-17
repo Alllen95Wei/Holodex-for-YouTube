@@ -5,7 +5,7 @@
 // @namespace    https://github.com/Alllen95Wei
 // @match        https://www.youtube.com/*
 // @match        https://holodex.net/*
-// @version      1.0.0
+// @version      1.0.1
 // @updateURL    https://github.com/Alllen95Wei/Holodex-for-YouTube/raw/refs/heads/main/holodex-for-yt.version.user.js
 // @downloadURL  https://github.com/Alllen95Wei/Holodex-for-YouTube/raw/refs/heads/main/holodex-for-yt.user.js
 // @grant        GM_getValues
