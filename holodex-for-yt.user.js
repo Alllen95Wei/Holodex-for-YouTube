@@ -76,6 +76,7 @@ button:hover {
     width: 80px;
     height: 80px;
     border-radius: 10px;
+    box-shadow: 0 0 5px 0 #A5A5A5;
     transition: width 0.1s linear, height 0.1s linear;
 }
 
