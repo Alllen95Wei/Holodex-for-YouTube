@@ -1,8 +1,9 @@
 // ==UserScript==
 // @name         Holodex for YouTube
-// @description  Testing
+// @description  A userscript that adds a player in your YouTube page when current video has valid timeline on Holodex.
 // @author       Allen Wei
 // @namespace    https://github.com/Alllen95Wei
+// @license      MIT
 // @match        https://www.youtube.com/*
 // @match        https://holodex.net/*
 // @version      1.0.1
