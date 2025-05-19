@@ -43,6 +43,10 @@ button:hover {
     background-image: linear-gradient(to bottom right, #5da2f2, #f06292);
 }
 
+#song-list-btn:hover {
+    background-image: linear-gradient(to bottom right, #7bb1f3, #ed82a8);
+}
+
 #song-list-div {
     font-size: small;
     white-space: pre-line;
@@ -241,7 +245,12 @@ const GOOGLE_ICONS_URL = [
 const escapeHTMLPolicy = trustedTypes.createPolicy("forceInner", {createHTML: (to_escape) => to_escape})
 let UPDATE_TRY = 0
 let LAST_SONG_ID = ""
+let IS_RANDOM = false
+let QUEUE = []
+let SONG_INDEX = []
 
+
+// Utils
 
 function secondsToFormattedString(seconds) {
     return `${Math.floor(seconds / 60)}:${seconds % 60 < 10 ? "0" : ""}${Math.floor(seconds % 60)}`
@@ -257,30 +266,38 @@ function compareSongSequence(a, b) {
     return 0
 }
 
-function autoplay(videoPlayer, songList, songIndex, updateNow, goNext, goPrevious) {
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function autoplay(videoPlayer, updateNow, goNext, goPrevious) {
     UPDATE_TRY++
     // check every 4 triggers (see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/timeupdate_event)
     if (UPDATE_TRY >= 4 || updateNow) {
         UPDATE_TRY = 0
         const currentTime = videoPlayer.currentTime
         let nextSong = null
-        for (const [start, end, i] of songIndex) {
+        for (const [start, end, i] of SONG_INDEX) {
             if (start <= currentTime && currentTime <= end) {  // now playing
-                const nowPlaying = songList[i]
+                const nowPlaying = QUEUE[i]
                 console.log(`Now playing: ${nowPlaying["name"]}, by ${nowPlaying["original_artist"]}`)
                 if (goNext) {
-                    nextSong = songList[i + 1] || null
+                    nextSong = QUEUE[i + 1] || null
                 } else if (goPrevious) {
-                    nextSong = songList[i - 1] || null
+                    nextSong = QUEUE[i - 1] || null
                 } else {
                     nextSong = "PLAYING"
                 }
                 break
-            } else if (start > currentTime) {
+            } else if (!IS_RANDOM && start > currentTime) {  // finds the next song only when "shuffle" is not enabled
                 // if (nextSong === songList[i]) {  // the next song is confirmed and will NOT change
                 //     break
                 // }
-                nextSong = songList[i]
+                nextSong = QUEUE[i]
                 break
             }
         }
@@ -295,10 +312,10 @@ function autoplay(videoPlayer, songList, songIndex, updateNow, goNext, goPreviou
     }
 }
 
-function getNowPlayingSong(videoPlayer, songList) {
+function getNowPlayingSong(videoPlayer) {
     const currentTime = videoPlayer.currentTime
     let i = 0
-    for (const song of songList) {
+    for (const song of QUEUE) {
         if (song.start <= currentTime && currentTime <= song.end) {
             return [song, i]
         }
@@ -314,11 +331,11 @@ function getNowPlayingSong(videoPlayer, songList) {
     }, -1]
 }
 
-function updateNowPlayingInfo(videoPlayer, songList) {
-    const [nowSong, index] = getNowPlayingSong(videoPlayer, songList)
+function updateNowPlayingInfo(videoPlayer, forceUpdate) {
+    const [nowSong, index] = getNowPlayingSong(videoPlayer)
     const currentTime = videoPlayer.currentTime
     const progressBar = document.getElementById("progress-bar")
-    if (nowSong.id !== LAST_SONG_ID) {
+    if (nowSong.id !== LAST_SONG_ID || forceUpdate) {
         // Update song info
         document.getElementById("hd-thumbnail").src = (nowSong.art || DEFAULT_ART_BASE64).replace("100x100", "500x500")
         document.getElementById("song-info-name").textContent = nowSong.name
@@ -329,7 +346,7 @@ function updateNowPlayingInfo(videoPlayer, songList) {
         const duration = nowSong.end - nowSong.start
         document.getElementById("progress-duration").textContent = secondsToFormattedString(duration)
         LAST_SONG_ID = nowSong.id
-        const controlBtns = document.querySelectorAll(".control-buttons")
+        const controlBtns = document.getElementsByClassName("control-buttons")
         if (nowSong.id === null) {
             for (const btn of controlBtns) {
                 btn.disabled = true
@@ -341,7 +358,7 @@ function updateNowPlayingInfo(videoPlayer, songList) {
             }
             progressBar.disabled = false
             // Disable skip buttons on the first/last one
-            if (index === songList.length - 1) {
+            if (index === QUEUE.length - 1) {
                 document.getElementById("skip-next-btn").disabled = true
             }
             if (index === 0) {
@@ -355,7 +372,7 @@ function updateNowPlayingInfo(videoPlayer, songList) {
         progressBar.max = 1
         progressBar.value = 0
         document.getElementById("progress-nowtime").textContent = "0:00"
-        document.getElementById("progress-nowtime").textContent = ""
+        document.getElementById("progress-nowtime").title = "-0:00"
     } else {
         progressBar.min = `${nowSong.start}`
         progressBar.max = `${nowSong.end}`
@@ -365,9 +382,82 @@ function updateNowPlayingInfo(videoPlayer, songList) {
     }
 }
 
+function renderQueue(songListTable, videoPlayer) {
+    const tableLength = songListTable.rows.length
+    for (let i = 0; i < (tableLength - 1); i++) {
+        songListTable.deleteRow(-1)
+    }
+    let index = 1
+    for (const song of QUEUE) {
+        const row = songListTable.insertRow()
+        // Song no.
+        const songNoCell = row.insertCell()
+        songNoCell.style.textAlign = "center"
+        songNoCell.textContent = `${index}`
+        // Song name
+        const songNameCell = row.insertCell()
+        songNameCell.style.paddingLeft = "0.3vw"
+        const songNameDiv = document.createElement("div")
+        songNameDiv.className = "song-name-div"
+        const songName = document.createElement("p")
+        songName.className = "song-name"
+        songName.textContent = song["name"]
+        const songArtist = document.createElement("p")
+        songArtist.className = "song-artist"
+        songArtist.textContent = song["original_artist"]
+        songNameDiv.append(songName, songArtist)
+        songNameCell.append(songNameDiv)
+        // Song duration
+        const songDurationCell = row.insertCell()
+        songDurationCell.style.textAlign = "center"
+        songDurationCell.textContent = secondsToFormattedString(song["end"] - song["start"])
+        // Play button
+        const playButton = document.createElement("button")
+        playButton.id = `play-button-${index}`
+        playButton.className = "play-button"
+        playButton.textContent = "▶️"
+        playButton.style.backgroundImage = `url(${song["art"]})`
+        // Left click: seek to the start of the song
+        playButton.addEventListener("click", () => {
+            videoPlayer.currentTime = song["start"]
+        })
+        // Right click: open in Musicdex
+        playButton.addEventListener("contextmenu", () => {
+            window.open(`https://music.holodex.net/song/${song["id"]}`, "_blank")
+        })
+        row.insertCell().appendChild(playButton)
+        index++
+    }
+}
+
+function generateQueue(songListTable, videoPlayer, start, isRandom) {
+    const playedQueue = QUEUE.slice(0, start)
+    let waitingQueue;
+    if (isRandom) {
+        waitingQueue = shuffle(QUEUE.slice(start))
+        QUEUE = playedQueue.concat(waitingQueue)
+    } else {
+        QUEUE = QUEUE.sort(compareSongSequence)
+    }
+    console.log("New queue:", QUEUE)
+    renderQueue(songListTable, videoPlayer, start)
+    let index = 0
+    SONG_INDEX = []
+    for (const song of QUEUE) {
+        // Append to index
+        SONG_INDEX.push([song["start"], song["end"], index])
+        index++
+    }
+}
+
+
+// Main function
 function main() {
     // Try to remove previous ones
     LAST_SONG_ID = ""
+    IS_RANDOM = false
+    QUEUE = []
+    SONG_INDEX = []
     try {
         document.getElementById("song-list-div").remove()
     } catch (e) {}  // Ignore error when nothing found
@@ -389,17 +479,14 @@ function main() {
             return response.json()
         })
         .then(response => {
-            // console.log(response)
             data = response
             if (!("songs" in data)) {
                 console.log("No songs found.")
                 return
             }
             // Get song list
-            const songList = data.songs
-            // Since Holodex API doesn't sort the list for us, we sort it by every song's start time
-            songList.sort(compareSongSequence)
-            console.log("Song list:", songList)
+            QUEUE = data.songs
+            console.log(QUEUE)
             // Inject CSS
             const stylesheet = document.createElement("style");
             stylesheet.textContent = STYLE_TEXT;
@@ -489,7 +576,22 @@ function main() {
             nextBtn.classList.add("material-icons", "control-buttons")
             nextBtn.id = "skip-next-btn"
             nextBtn.textContent = "skip_next"
-            controlDiv.append(previousBtn, playBtn, nextBtn)
+            const shuffleBtn = document.createElement("button")
+            shuffleBtn.classList.add("material-icons", "control-buttons")
+            shuffleBtn.id = "shuffle-btn"
+            shuffleBtn.textContent = "shuffle"
+            shuffleBtn.addEventListener("click", () => {
+                let [_, nowSongIndex] = getNowPlayingSong(videoPlayer)
+                if (IS_RANDOM) {
+                    shuffleBtn.textContent = "shuffle"
+                } else {
+                    shuffleBtn.textContent = "shuffle_on"
+                }
+                IS_RANDOM = !IS_RANDOM
+                generateQueue(songListTable, videoPlayer, nowSongIndex + 1, IS_RANDOM)
+                updateNowPlayingInfo(videoPlayer, true)
+            })
+            controlDiv.append(previousBtn, playBtn, nextBtn, shuffleBtn)
             playerDiv.append(songInfoDiv, progressDiv, controlDiv)
             autoplayDiv.append(playerDiv)
             // Create song list table
@@ -505,54 +607,11 @@ function main() {
                 <th style="width: 40px">播放</th>
             </tr>
             `)
-            let index = 1
-            let songIndex = []
-            for (const song of songList) {
-                const row = songListTable.insertRow()
-                // Song no.
-                const songNoCell = row.insertCell()
-                songNoCell.style.textAlign = "center"
-                songNoCell.textContent = `${index}`
-                // Song name
-                const songNameCell = row.insertCell()
-                songNameCell.style.paddingLeft = "0.3vw"
-                const songNameDiv = document.createElement("div")
-                songNameDiv.className = "song-name-div"
-                const songName = document.createElement("p")
-                songName.className = "song-name"
-                songName.textContent = song["name"]
-                const songArtist = document.createElement("p")
-                songArtist.className = "song-artist"
-                songArtist.textContent = song["original_artist"]
-                songNameDiv.append(songName, songArtist)
-                songNameCell.append(songNameDiv)
-                // Song duration
-                const songDurationCell = row.insertCell()
-                songDurationCell.style.textAlign = "center"
-                songDurationCell.textContent = secondsToFormattedString(song["end"] - song["start"])
-                // Play button
-                const playButton = document.createElement("button")
-                playButton.id = `play-button-${index}`
-                playButton.className = "play-button"
-                playButton.textContent = "▶️"
-                playButton.style.backgroundImage = `url(${song["art"]})`
-                // Left click: seek to the start of the song
-                playButton.addEventListener("click", () => {
-                    videoPlayer.currentTime = song["start"]
-                })
-                // Right click: Open in Musicdex
-                playButton.addEventListener("contextmenu", () => {
-                    window.open(`https://music.holodex.net/song/${song["id"]}`, "_blank")
-                })
-                row.insertCell().appendChild(playButton)
-                // Append to queue
-                songIndex.push([song["start"], song["end"], (index - 1)])
-                index++
-            }
+            generateQueue(songListTable, videoPlayer, 0, false)
             // Set up autoplay after loop
             // Wrap autoplay as a lambda object, so that we can remove it when needed
             function apl() {
-                autoplay(videoPlayer, songList, songIndex, false, false, false)
+                autoplay(videoPlayer, false, false, false)
             }
             autoplaySwitch.addEventListener("change", () => {
                 console.log("Autoplay enabled: ", autoplaySwitch.checked)
@@ -571,7 +630,7 @@ function main() {
             // Set up song info updater
             // Same reason as autoplay
             function unpil() {
-                updateNowPlayingInfo(videoPlayer, songList)
+                updateNowPlayingInfo(videoPlayer, false)
             }
             videoPlayer.addEventListener("timeupdate", unpil)
             videoPlayer.addEventListener("play", () => {
@@ -582,11 +641,11 @@ function main() {
             })
             // Set up control buttons
             function appl() {
-                autoplay(videoPlayer, songList, songIndex, true, false, true)
+                autoplay(videoPlayer, true, false, true)
             }
             previousBtn.addEventListener("click", appl)
             function apnl() {
-                autoplay(videoPlayer, songList, songIndex, true, true, false)
+                autoplay(videoPlayer, true, true, false)
             }
             nextBtn.addEventListener("click", apnl)
             // Append the table into its div before it appends into the main div
