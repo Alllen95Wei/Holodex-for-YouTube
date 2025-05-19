@@ -26,6 +26,10 @@ button:hover {
     background-image: linear-gradient(to bottom right, #5da2f2, #f06292);
 }
 
+#song-list-btn:hover {
+    background-image: linear-gradient(to bottom right, #7bb1f3, #ed82a8);
+}
+
 #song-list-div {
     font-size: small;
     white-space: pre-line;
