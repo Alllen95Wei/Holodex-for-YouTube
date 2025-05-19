@@ -633,6 +633,11 @@ function main() {
                 updateNowPlayingInfo(videoPlayer, false)
             }
             videoPlayer.addEventListener("timeupdate", unpil)
+            document.addEventListener("yt-navigate-start", () => {
+                try {
+                    videoPlayer.removeEventListener("timeupdate", unpil)
+                } catch (e) {}
+            })
             videoPlayer.addEventListener("play", () => {
                 playBtn.textContent = "pause"
             })
