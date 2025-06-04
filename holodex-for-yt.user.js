@@ -233,13 +233,22 @@ button:hover {
     width: 3.5vw;
     background-color: darkgray;
 }
+
+/* ============= Google Material Symbols Stylesheet ============= */
+.material-symbols-rounded {
+  font-variation-settings:
+  'FILL' 1,
+  'wght' 400,
+  'GRAD' 200,
+  'opsz' 24
+}
 `
 const DEFAULT_ART_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAGHaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj48cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0idXVpZDpmYWY1YmRkNS1iYTNkLTExZGEtYWQzMS1kMzNkNzUxODJmMWIiIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIj48dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPjwvcmRmOkRlc2NyaXB0aW9uPjwvcmRmOlJERj48L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9J3cnPz4slJgLAAABAElEQVR4Xu3RoQHAIBDAwNLFf3TwLEDEnYzNmpn9kfHfgbcMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEk5gAHmwNEhZDUhAAAAABJRU5ErkJggg=="
 const GOOGLE_ICONS_URL = [
     // "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@40,500,1,200&icon_names=skip_previous",
     // "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@40,500,1,200&icon_names=play_arrow",
     // "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@40,500,1,200&icon_names=skip_next"
-    "https://fonts.googleapis.com/icon?family=Material+Icons"
+    "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..20"
 ]
 
 const escapeHTMLPolicy = trustedTypes.createPolicy("forceInner", {createHTML: (to_escape) => to_escape})
@@ -561,11 +570,11 @@ function main() {
             })
             progressDiv.append(nowTime, progressBar, duration)
             const previousBtn = document.createElement("button")
-            previousBtn.classList.add("material-icons", "control-buttons")
+            previousBtn.classList.add("material-symbols-rounded", "control-buttons")
             previousBtn.id= "skip-previous-btn"
             previousBtn.textContent = "skip_previous"
             const playBtn = document.createElement("button")
-            playBtn.classList.add("material-icons", "control-buttons")
+            playBtn.classList.add("material-symbols-rounded", "control-buttons")
             playBtn.id = "play-pause-btn"
             playBtn.textContent = "pause"
             playBtn.addEventListener("click", () => {
@@ -576,11 +585,11 @@ function main() {
                 }
             })
             const nextBtn = document.createElement("button")
-            nextBtn.classList.add("material-icons", "control-buttons")
+            nextBtn.classList.add("material-symbols-rounded", "control-buttons")
             nextBtn.id = "skip-next-btn"
             nextBtn.textContent = "skip_next"
             const shuffleBtn = document.createElement("button")
-            shuffleBtn.classList.add("material-icons", "control-buttons")
+            shuffleBtn.classList.add("material-symbols-rounded", "control-buttons")
             shuffleBtn.id = "shuffle-btn"
             shuffleBtn.textContent = "shuffle"
             shuffleBtn.addEventListener("click", () => {
