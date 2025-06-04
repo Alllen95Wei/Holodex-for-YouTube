@@ -431,11 +431,8 @@ function renderQueue(songListTable, videoPlayer) {
 }
 
 function generateQueue(songListTable, videoPlayer, start, isRandom) {
-    const playedQueue = QUEUE.slice(0, start)
-    let waitingQueue;
     if (isRandom) {
-        waitingQueue = shuffle(QUEUE.slice(start))
-        QUEUE = playedQueue.concat(waitingQueue)
+        QUEUE = shuffle(QUEUE)
     } else {
         QUEUE = QUEUE.sort(compareSongSequence)
     }
