@@ -245,6 +245,7 @@ const GOOGLE_ICONS_URL = [
 const escapeHTMLPolicy = trustedTypes.createPolicy("forceInner", {createHTML: (to_escape) => to_escape})
 let UPDATE_TRY = 0
 let LAST_SONG_ID = ""
+let LAST_SONG_INDEX = 0
 let IS_RANDOM = false
 let QUEUE = []
 let SONG_INDEX = []
@@ -285,6 +286,7 @@ function autoplay(videoPlayer, updateNow, goNext, goPrevious) {
             if (start <= currentTime && currentTime <= end) {  // now playing
                 const nowPlaying = QUEUE[i]
                 console.log(`Now playing: ${nowPlaying["name"]}, by ${nowPlaying["original_artist"]}`)
+                LAST_SONG_INDEX = i
                 if (goNext) {
                     nextSong = QUEUE[i + 1] || null
                 } else if (goPrevious) {
@@ -299,6 +301,8 @@ function autoplay(videoPlayer, updateNow, goNext, goPrevious) {
                 // }
                 nextSong = QUEUE[i]
                 break
+            } else {  // the playlist is random and no song is playing
+                nextSong = QUEUE[LAST_SONG_INDEX + 1] || null
             }
         }
         if (nextSong !== null && nextSong !== "PLAYING") {
@@ -306,6 +310,7 @@ function autoplay(videoPlayer, updateNow, goNext, goPrevious) {
             console.log(`Seeking to ${nextSong["start"]}`)
             videoPlayer.currentTime = nextSong["start"]
         } else if (nextSong !== "PLAYING") {
+            console.log(nextSong)
             console.log("The last song in the list has finished, pausing the player")
             videoPlayer.pause()
         }
@@ -452,6 +457,7 @@ function generateQueue(songListTable, videoPlayer, start, isRandom) {
 function main() {
     // Try to remove previous ones
     LAST_SONG_ID = ""
+    LAST_SONG_INDEX = 0
     IS_RANDOM = false
     QUEUE = []
     SONG_INDEX = []
