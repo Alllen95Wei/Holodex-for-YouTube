@@ -440,7 +440,7 @@ function generateQueue(songListTable, videoPlayer, start, isRandom) {
         QUEUE = QUEUE.sort(compareSongSequence)
     }
     console.log("New queue:", QUEUE)
-    renderQueue(songListTable, videoPlayer, start)
+    renderQueue(songListTable, videoPlayer)
     let index = 0
     SONG_INDEX = []
     for (const song of QUEUE) {
