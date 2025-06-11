@@ -256,6 +256,13 @@ let UPDATE_TRY = 0
 let LAST_SONG_ID = ""
 let LAST_SONG_INDEX = 0
 let IS_RANDOM = false
+
+/*
+* 0 = no repeat \
+* 1 = repeat one \
+* 2 = repeat all
+*/
+let REPEAT_MODE = 0
 let QUEUE = []
 let SONG_INDEX = []
 
@@ -310,8 +317,9 @@ function autoplay(videoPlayer, updateNow, goNext, goPrevious) {
                 // }
                 nextSong = QUEUE[i]
                 break
-            } else {  // the playlist is random and no song is playing
+            } else if (IS_RANDOM) {  // the playlist is random and no song is playing
                 nextSong = QUEUE[LAST_SONG_INDEX + 1] || null
+                break
             }
         }
         if (nextSong !== null && nextSong !== "PLAYING") {
@@ -569,6 +577,24 @@ function main() {
                 videoPlayer.currentTime = parseInt(progressBar.value)
             })
             progressDiv.append(nowTime, progressBar, duration)
+            const repeatBtn = document.createElement("button")
+            repeatBtn.classList.add("material-symbols-rounded", "control-buttons")
+            repeatBtn.id = "repeat-btn"
+            repeatBtn.textContent = "repeat"
+            repeatBtn.addEventListener("click", () => {
+                if (REPEAT_MODE === 2) {
+                    REPEAT_MODE = 0
+                } else {
+                    REPEAT_MODE++
+                }
+                if (REPEAT_MODE === 0) {
+                    repeatBtn.textContent = "repeat"
+                } else if (REPEAT_MODE === 1) {
+                    repeatBtn.textContent = "repeat_one_on"
+                } else if (REPEAT_MODE === 2) {
+                    repeatBtn.textContent = "repeat_on"
+                }
+            })
             const previousBtn = document.createElement("button")
             previousBtn.classList.add("material-symbols-rounded", "control-buttons")
             previousBtn.id= "skip-previous-btn"
@@ -603,7 +629,7 @@ function main() {
                 generateQueue(songListTable, videoPlayer, nowSongIndex + 1, IS_RANDOM)
                 updateNowPlayingInfo(videoPlayer, true)
             })
-            controlDiv.append(previousBtn, playBtn, nextBtn, shuffleBtn)
+            controlDiv.append(repeatBtn, previousBtn, playBtn, nextBtn, shuffleBtn)
             playerDiv.append(songInfoDiv, progressDiv, controlDiv)
             autoplayDiv.append(playerDiv)
             // Create song list table
